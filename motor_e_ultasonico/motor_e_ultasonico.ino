@@ -1,45 +1,33 @@
-#include <IRremote.h>
- 
-#define receptor 11
+#include <HCSR04.h>
+
 #define mot1a 3
 #define mot1b 4
 #define mot2a 5
 #define mot2b 6
 
+#define p_trigger 10
+#define p_echo 11
 
-IRrecv recIR(receptor);
-decode_results resultado;
+UltraSonicDistanceSensor distanceSensor(p_trigger, p_echo);
 
-void setup(){
+int dist_cm, dist_m;
+
+void setup () {
+  Serial.begin(9600);
   pinMode(mot1a, OUTPUT);
   pinMode(mot1b, OUTPUT);
   pinMode(mot2a, OUTPUT);
   pinMode(mot2b, OUTPUT);
-  Serial.begin(9600);
-  recIR.enableIRIn(); //Inicializa o receptor IR
-
 }
 
-void loop() {
-  if(recIR.decode(&resultado)){
-    if(resultado.value == 0x20DF02FD){
-      frente();
-    }
-    if(resultado.value == 0x20DF827D){
+void loop () {
+    dist_cm = distanceSensor.measureDistanceCm();
+    if(dist_cm > 20){
       tras();
     }
-    if(resultado.value == 0x20DF22DD){
-      parar();
-    }
-    if(resultado.value == 0x20DFE01F){
-      esquerda();
-    }
-    if(resultado.value == 0x20DF609F
-){
+    if(dist_cm < 20){
       direita();
     }
-    recIR.resume();
-  }
 }
 
 void frente(){
